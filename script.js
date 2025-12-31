@@ -121,5 +121,5 @@ function launchSequence() {
   }
 }
 
-setInterval(launchSequence, 1000);
+setInterval(Launch, 166);
 animate();
