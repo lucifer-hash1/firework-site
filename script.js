@@ -1,43 +1,35 @@
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
+// Source - https://stackoverflow.com/q
+// Posted by Gurandeer, modified by community. See post 'Timeline' for change history
+// Retrieved 2025-12-31, License - CC BY-SA 3.0
 
-function resize() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-resize();
-window.addEventListener("resize", resize);
+var nFireworks = 10000;
 
-const rockets = [];
-const gravity = 0.05;
+function initParticleSystem() {
 
-function launch() {
-  rockets.push({
-    x: canvas.width / 2,
-    y: canvas.height,
-    vy: -8
-  });
-}
+  var particlesData = [];
 
-function animate() {
-  ctx.fillStyle = "rgba(0,0,0,0.3)";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  for (var i= 0; i < nFireworks; i++) {
 
-  rockets.forEach((r, i) => {
-    r.vy += gravity;
-    r.y += r.vy;
+    // angulos del cono
+    var theta = Math.PI / 6.0 * Math.random();
+    var phi   = 5.0 * Math.PI * Math.random();
 
-    ctx.fillStyle = "white";
-    ctx.beginPath();
-    ctx.arc(r.x, r.y, 4, 0, Math.PI * 2);
-    ctx.fill();
+    // direccion
+    var x1 = Math.sin(theta) * Math.cos(phi) ;
+    var y1 = velocity;
+    var z1 = 0.0;
 
-    if (r.vy >= 0) rockets.splice(i, 1);
-  });
+    // velocidad
+    var alpha = Math.random();
+    var velocity = (1.4 * alpha) + (0.80 * (1.0 - alpha));
 
-  requestAnimationFrame(animate);
+    particlesData[i * 4 + 0] = x1 * velocity;
+    particlesData[i * 4 + 1] = y1 * velocity;
+    particlesData[i * 4 + 2] = z1 * velocity;
+    particlesData[i * 4 + 3] = i * 0.095;
+
+  } 
 }
 
-setInterval(launch, 800);
-animate();
+
 
