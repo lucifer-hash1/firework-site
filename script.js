@@ -14,8 +14,18 @@ const GRAVITY = 0.06;
 
 /* ---------- ӨНГӨ ---------- */
 function glowColor() {
-  const colors = ["#ffffff", "#ffd27d", "#ffb3c6"];
+  const colors = [
+    "#ffffff", // цагаан
+    "#00ffff", // cyan
+    "#ff00ff", // magenta
+    "#ffff00", // шар
+    "#ff3300", // улаан
+    "#00ff66", // ногоон
+    "#3399ff"  // цэнхэр
+  ];
   return colors[Math.floor(Math.random() * colors.length)];
+}
+
 }
 
 /* ---------- 3 : 1 : 1 SHAPE ---------- */
@@ -57,14 +67,15 @@ function explode(cx, cy, color, type) {
       angle = Math.random() * Math.PI * 2;
       speed = Math.random() * 4 + 2;
     }
-
-    particles.push({
+    
+        particles.push({
       x: cx,
       y: cy,
       vx: Math.cos(angle) * speed,
       vy: Math.sin(angle) * speed,
       life: 50,
-      color
+      color,
+      explodeAt: 30
     });
   }
 }
@@ -98,29 +109,39 @@ function animate() {
   }
 
   // particles
-  for (let i = particles.length - 1; i >= 0; i--) {
-    const p = particles[i];
 
-    p.vy += GRAVITY;       // татах хүч
-    p.x += p.vx;
-    p.y += p.vy;
-    p.life--;
+for (let i = particles.length - 1; i >= 0; i--) {
+  const p = particles[i];
 
-    ctx.save();
-    ctx.shadowBlur = 15;
-    ctx.shadowColor = p.color;
-    ctx.fillStyle = p.color;
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
+  p.vy += GRAVITY;
+  p.x += p.vx;
+  p.y += p.vy;
+  p.life--;
 
-    if (p.life <= 0) particles.splice(i, 1);
-  }
+  ctx.save();
+  ctx.shadowBlur = 30;
+  ctx.shadowColor = p.color;
+  ctx.fillStyle = p.color;
+  ctx.beginPath();
+  ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  if (p.life <= 0) particles.splice(i, 1);
+}
+
 
   requestAnimationFrame(animate);
 }
 
 /* ---------- AUTO ---------- */
-setInterval(launch, 650);
+function launchSequence() {
+  for (let i = 0; i < 6; i++) {
+    setTimeout(() => {
+      launch();
+    }, i * 150);
+  }
+}
+
+setInterval(launchSequence, 1000);
 animate();
