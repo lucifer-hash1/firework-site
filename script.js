@@ -26,16 +26,20 @@ function pickType() {
   return "heart";
 }
 
+// 1 launch-д нэг биш хэд хэдэн ракет нэмнэ
 function launch() {
-  rockets.push({
-    x: canvas.width * 0.3 + Math.random() * canvas.width * 0.4,
-    y: canvas.height + 20,
-    vx: (Math.random() - 0.5) * 0.8,
-    vy: -9 - Math.random() * 2,
-    targetY: canvas.height * (0.25 + Math.random() * 0.2),
-    color: glowColor(),
-    type: pickType()
-  });
+  const rocketsPerLaunch = 1; // 1 удаад 1 ракет
+  for (let i = 0; i < rocketsPerLaunch; i++) {
+    rockets.push({
+      x: canvas.width * 0.3 + Math.random() * canvas.width * 0.4,
+      y: canvas.height + 20,
+      vx: (Math.random() - 0.5) * 0.8,
+      vy: -9 - Math.random() * 2,
+      targetY: canvas.height * (0.25 + Math.random() * 0.2),
+      color: glowColor(),
+      type: pickType()
+    });
+  }
 }
 
 function explode(cx, cy, color, type) {
@@ -111,8 +115,7 @@ function animate() {
   requestAnimationFrame(animate);
 }
 
-// 1 секундэд 6 ракет гаргах: 1000ms / 6 ≈ 166ms
-setInterval(launch, 50);
+// 1 секундэд 7 ракет гаргах: 1000ms / 7 ≈ 143ms
+setInterval(launch, 143);
 
 animate();
-
