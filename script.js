@@ -112,7 +112,7 @@ function animate() {
 }
 
 // 1 секундэд 6 ракет гаргах: 1000ms / 6 ≈ 166ms
-setInterval(launch, 166);
+setInterval(launch, 50);
 
 animate();
 
