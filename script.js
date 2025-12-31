@@ -14,13 +14,7 @@ const GRAVITY = 0.06;
 
 function glowColor() {
   const colors = [
-    "#ffffff", // цагаан
-    "#00ffff", // cyan
-    "#ff00ff", // magenta
-    "#ffff00", // шар
-    "#ff3300", // улаан
-    "#00ff66", // ногоон
-    "#3399ff"  // цэнхэр
+    "#ffffff", "#00ffff", "#ff00ff", "#ffff00", "#ff3300", "#00ff66", "#3399ff"
   ];
   return colors[Math.floor(Math.random() * colors.length)];
 }
@@ -79,6 +73,7 @@ function animate() {
     r.vy += GRAVITY * 0.3;
     r.x += r.vx;
     r.y += r.vy;
+
     ctx.save();
     ctx.shadowBlur = 20;
     ctx.shadowColor = r.color;
@@ -100,6 +95,7 @@ function animate() {
     p.x += p.vx;
     p.y += p.vy;
     p.life--;
+
     ctx.save();
     ctx.shadowBlur = 15;
     ctx.shadowColor = p.color;
@@ -108,11 +104,15 @@ function animate() {
     ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
+
     if (p.life <= 0) particles.splice(i, 1);
   }
 
   requestAnimationFrame(animate);
 }
 
-setInterval(Launch, 166);
+// 1 секундэд 6 ракет гаргах: 1000ms / 6 ≈ 166ms
+setInterval(launch, 166);
+
 animate();
+
