@@ -1,44 +1,45 @@
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+canvas.width = innerWidth;
+canvas.height = innerHeight;
 
-window.addEventListener("resize", () => {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+addEventListener("resize", () => {
+  canvas.width = innerWidth;
+  canvas.height = innerHeight;
 });
 
-const fireworks = [];
+const rockets = [];
 const particles = [];
 
-/* --- ЗӨӨЛӨН НЭГ ТӨРЛИЙН ӨНГӨ --- */
-function calmColor() {
-  const colors = ["#ffcc88", "#ffd1dc", "#cce6ff", "#e6ccff"];
+/* --- ГЭРЭЛТЭЙ, НЭГ СТИЛИЙН ӨНГӨ --- */
+function glowColor() {
+  const colors = ["#ffd27d", "#ffffff", "#ffb3c6"];
   return colors[Math.floor(Math.random() * colors.length)];
 }
 
-/* --- FIREWORK ДЭЭШ ХӨӨРӨХ --- */
-function launchFirework() {
-  fireworks.push({
+/* --- ДОРООС ХӨӨРӨХ --- */
+function launch() {
+  rockets.push({
     x: Math.random() * canvas.width,
-    y: canvas.height,
-    vy: -6 - Math.random() * 2,
-    targetY: canvas.height * (0.2 + Math.random() * 0.3),
-    color: calmColor()
+    y: canvas.height + 10,
+    vy: -8 - Math.random() * 2,
+    targetY: canvas.height * (0.2 + Math.random() * 0.25),
+    color: glowColor()
   });
 }
 
-/* --- ДЭЛБЭРЭХ --- */
+/* --- ХУРДАН, ГЭРЭЛТЭЙ ДЭЛБЭРЭЛТ --- */
 function explode(x, y, color) {
-  for (let i = 0; i < 60; i++) {
-    const angle = (Math.PI * 2 / 60) * i;
+  for (let i = 0; i < 90; i++) {
+    const a = Math.random() * Math.PI * 2;
+    const s = Math.random() * 4 + 2;
     particles.push({
       x,
       y,
-      vx: Math.cos(angle) * 2,
-      vy: Math.sin(angle) * 2,
-      life: 80,
+      vx: Math.cos(a) * s,
+      vy: Math.sin(a) * s,
+      life: 40,
       color
     });
   }
@@ -46,32 +47,43 @@ function explode(x, y, color) {
 
 /* --- ANIMATION --- */
 function animate() {
-  ctx.fillStyle = "rgba(0,0,0,0.15)";
+  ctx.fillStyle = "rgba(0,0,0,0.25)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  fireworks.forEach((f, i) => {
-    f.y += f.vy;
-    ctx.fillStyle = f.color;
-    ctx.beginPath();
-    ctx.arc(f.x, f.y, 3, 0, Math.PI * 2);
-    ctx.fill();
+  // rockets
+  rockets.forEach((r, i) => {
+    r.y += r.vy;
 
-    if (f.y <= f.targetY) {
-      explode(f.x, f.y, f.color);
-      fireworks.splice(i, 1);
+    ctx.save();
+    ctx.shadowBlur = 20;
+    ctx.shadowColor = r.color;
+    ctx.fillStyle = r.color;
+    ctx.beginPath();
+    ctx.arc(r.x, r.y, 3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    if (r.y <= r.targetY) {
+      explode(r.x, r.y, r.color);
+      rockets.splice(i, 1);
     }
   });
 
+  // particles
   particles.forEach((p, i) => {
     p.x += p.vx;
     p.y += p.vy;
-    p.vy += 0.02;
+    p.vy += 0.03;
     p.life--;
 
+    ctx.save();
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = p.color;
     ctx.fillStyle = p.color;
     ctx.beginPath();
     ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
     ctx.fill();
+    ctx.restore();
 
     if (p.life <= 0) particles.splice(i, 1);
   });
@@ -79,7 +91,7 @@ function animate() {
   requestAnimationFrame(animate);
 }
 
-/* --- АВТОМАТ FIREWORK --- */
-setInterval(launchFirework, 1200);
+/* --- ДЭЛГЭЦ ХООСОН САНАГДАХГҮЙ БОЛГОХ --- */
+setInterval(launch, 700);
 
 animate();
