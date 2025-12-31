@@ -21,15 +21,66 @@ function glowColor() {
   return colors[Math.floor(Math.random() * colors.length)];
 }
 
-/* ===== ROCKET ===== */
+/* ===== 3 : 1 : 1 ХЭЛБЭР ===== */
+function pickType() {
+  const r = Math.random();
+  if (r < 0.6) return "circle";
+  if (r < 0.8) return "star";
+  return "heart";
+}
+
+/* ===== ХЭЛБЭР ЗУРАХ ===== */
+function drawShape(x, y, color, type, size) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.shadowBlur = 25;
+  ctx.shadowColor = color;
+  ctx.fillStyle = color;
+
+  ctx.beginPath();
+
+  if (type === "circle") {
+    ctx.arc(0, 0, size, 0, Math.PI * 2);
+  }
+
+  if (type === "star") {
+    const spikes = 5;
+    const outer = size;
+    const inner = size * 0.5;
+    let rot = Math.PI / 2 * 3;
+    let step = Math.PI / spikes;
+
+    ctx.moveTo(0, -outer);
+    for (let i = 0; i < spikes; i++) {
+      ctx.lineTo(Math.cos(rot) * outer, Math.sin(rot) * outer);
+      rot += step;
+      ctx.lineTo(Math.cos(rot) * inner, Math.sin(rot) * inner);
+      rot += step;
+    }
+    ctx.closePath();
+  }
+
+  if (type === "heart") {
+    const s = size * 0.9;
+    ctx.moveTo(0, s / 2);
+    ctx.bezierCurveTo(-s, -s / 2, -s, s, 0, s * 1.4);
+    ctx.bezierCurveTo(s, s, s, -s / 2, 0, s / 2);
+  }
+
+  ctx.fill();
+  ctx.restore();
+}
+
+/* ===== ROCKET (ХЭЛБЭРТЭЙ ХӨӨРНӨ) ===== */
 function launch() {
   rockets.push({
     x: canvas.width / 2 + (Math.random() - 0.5) * canvas.width * 0.4,
-    y: canvas.height + 20,
+    y: canvas.height + 30,
     vx: (Math.random() - 0.5) * 0.6,
     vy: -10 - Math.random() * 2,
     targetY: canvas.height * (0.25 + Math.random() * 0.2),
-    color: glowColor()
+    color: glowColor(),
+    type: pickType()
   });
 }
 
@@ -44,8 +95,8 @@ function explodeBig(x, y, color) {
       life: 90,
       alpha: 1,
       color,
-      frozen: true,       // ⭐ хөдөлгөөнгүй
-      timer: 60           // ⭐ 1 секунд
+      frozen: true,
+      timer: 60 // 1 секунд
     });
   }
 }
@@ -55,7 +106,6 @@ function explodeSmall(x, y, color) {
   for (let i = 0; i < 25; i++) {
     const a = Math.random() * Math.PI * 2;
     const s = Math.random() * 2 + 1;
-
     particles.push({
       x,
       y,
@@ -74,7 +124,7 @@ function animate() {
   ctx.fillStyle = "rgba(0,0,0,0.3)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // rockets
+  /* --- ROCKETS (ХЭЛБЭРТЭЙ) --- */
   for (let i = rockets.length - 1; i >= 0; i--) {
     const r = rockets[i];
 
@@ -82,14 +132,8 @@ function animate() {
     r.x += r.vx;
     r.y += r.vy;
 
-    ctx.save();
-    ctx.shadowBlur = 25;
-    ctx.shadowColor = r.color;
-    ctx.fillStyle = r.color;
-    ctx.beginPath();
-    ctx.arc(r.x, r.y, 4, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
+    // ⭐ ХӨӨРЧ БАЙХДАА СОЛИУТЫН ХЭЛБЭРТЭЙ
+    drawShape(r.x, r.y, r.color, r.type, 6);
 
     if (r.y <= r.targetY || r.vy >= 0) {
       explodeBig(r.x, r.y, r.color);
@@ -97,7 +141,7 @@ function animate() {
     }
   }
 
-  // particles
+  /* --- PARTICLES --- */
   for (let i = particles.length - 1; i >= 0; i--) {
     const p = particles[i];
 
@@ -145,5 +189,7 @@ setInterval(() => {
     setTimeout(launch, i * 160);
   }
 }, 1000);
+
+animate();
 
 animate();
