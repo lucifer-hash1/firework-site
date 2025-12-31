@@ -86,7 +86,7 @@ function launch() {
 
 /* ===== ТОМ ДЭЛБЭРЭЛТ ===== */
 function explodeBig(x, y, color) {
-  for (let i = 0; i < 80; i++) {
+  for (let i = 0; i < 60; i++) {
     particles.push({
       x,
       y,
@@ -103,7 +103,7 @@ function explodeBig(x, y, color) {
 
 /* ===== ЖИЖИГ ДЭЛБЭРЭЛТ ===== */
 function explodeSmall(x, y, color) {
-  for (let i = 0; i < 25; i++) {
+  for (let i = 0; i < 20; i++) {
     const a = Math.random() * Math.PI * 2;
     const s = Math.random() * 2 + 1;
     particles.push({
