@@ -1,14 +1,130 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="mn">
 <head>
-  <meta charset="UTF-8">
-  <title>Firework</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <title>CSS & JS Firework Simulator</title>
+    <style>
+        /* CSS: Дэлгэцийг харанхуй болгож, текстийг загварчилна */
+        body {
+            margin: 0;
+            background: #000; /* Хар дэвсгэр */
+            overflow: hidden; /* Скрол гаргахгүй */
+            color: white;
+            font-family: 'Arial', sans-serif;
+        }
+
+        #instruction {
+            position: absolute;
+            top: 20px;
+            width: 100%;
+            text-align: center;
+            pointer-events: none;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0.7;
+        }
+
+        canvas {
+            display: block;
+        }
+    </style>
 </head>
 <body>
-  <canvas id="canvas"></canvas>
-  <script src="script.js"></script>
+
+    <div id="instruction">Дэлгэц дээр дарж салют буудуулаарай</div>
+    <canvas id="fireworksCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('fireworksCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Дэлгэцийн хэмжээг тохируулах
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // Салютын хэсгүүдийг (Particles) хадгалах массив
+        let particles = [];
+
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                // Санамсаргүй чиглэлд шидэгдэх хурд
+                this.velocity = {
+                    x: (Math.random() - 0.5) * 8,
+                    y: (Math.random() - 0.5) * 8
+                };
+                this.alpha = 1; // Үзэгдэх байдал (аажмаар алга болно)
+                this.friction = 0.95; // Үрэлт (хурдыг сааруулна)
+                this.gravity = 0.2;   // Хүндийн хүч (доошоо унана)
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                ctx.restore();
+            }
+
+            update() {
+                this.velocity.x *= this.friction;
+                this.velocity.y *= this.friction;
+                this.velocity.y += this.gravity;
+                this.x += this.velocity.x;
+                this.y += this.velocity.y;
+                this.alpha -= 0.01; // Илүү удаан алга болгох
+            }
+        }
+
+        // Салют үүсгэх функц
+        function createFirework(x, y) {
+            const particleCount = 100;
+            const color = `hsl(${Math.random() * 360}, 100%, 50%)`; // Санамсаргүй гоё өнгө
+            
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle(x, y, color));
+            }
+        }
+
+        // Хөдөлгөөнийг дүрслэх (Animation Loop)
+        function animate() {
+            // Дэлгэцийг аажмаар харлуулж "сүүл" үүсгэх эффект
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach((particle, index) => {
+                if (particle.alpha > 0) {
+                    particle.update();
+                    particle.draw();
+                } else {
+                    particles.splice(index, 1); // Алга болсон бол устгах
+                }
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        // Хэрэглэгч дарах үед
+        window.addEventListener('mousedown', (e) => {
+            createFirework(e.clientX, e.clientY);
+        });
+
+        // Автоматаар хааяа нэг буудуулах (Сонголтоор)
+        setInterval(() => {
+            if (Math.random() < 0.3) {
+                createFirework(Math.random() * canvas.width, Math.random() * canvas.height * 0.5);
+            }
+        }, 1000);
+
+        animate();
+    </script>
 </body>
 </html>
-<canvas id="canvas"></canvas>
-<script src="script.js"></script>
