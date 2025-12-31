@@ -113,13 +113,6 @@ function animate() {
 
   requestAnimationFrame(animate);
 }
-function launchSequence() {
-  for (let i = 7; i < 9; i++) {
-    setTimeout(() => {
-      launch();
-    }, i * 150);
-  }
-}
 
 setInterval(Launch, 166);
 animate();
