@@ -114,7 +114,7 @@ function animate() {
   requestAnimationFrame(animate);
 }
 function launchSequence() {
-  for (let i = 0; i < 6; i++) {
+  for (let i = 7; i < 9; i++) {
     setTimeout(() => {
       launch();
     }, i * 150);
