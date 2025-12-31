@@ -2,127 +2,175 @@
 <html lang="mn">
 <head>
     <meta charset="UTF-8">
-    <title>CSS & JS Firework Simulator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firework Simulator CSS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
     <style>
-        /* CSS: Дэлгэцийг харанхуй болгож, текстийг загварчилна */
         body {
             margin: 0;
-            background: #000; /* Хар дэвсгэр */
-            overflow: hidden; /* Скрол гаргахгүй */
-            color: white;
+            padding: 0;
+            background-color: #0e0214; /* Бараан ягаан/хар дэвсгэр */
+            overflow: hidden;
             font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
 
-        #instruction {
+        /* Бичлэг дээрх гарчиг */
+        .title {
             position: absolute;
             top: 20px;
-            width: 100%;
-            text-align: center;
-            pointer-events: none;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            opacity: 0.7;
+            color: #4ade80; /* Ногоон өнгө */
+            font-size: 24px;
+            font-weight: bold;
+            z-index: 10;
         }
 
+        /* Код харуулж буй цонх (Modal) */
+        .help-modal__body {
+            width: 350px;
+            background: #1e1e1e;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            z-index: 5;
+            color: #d4d4d4;
+        }
+
+        .code-header {
+            color: #6a9955;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .code-content {
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .property { color: #9cdcfe; } /* Цэнхэр */
+        .value { color: #ce9178; }    /* Улбар шар */
+        .selector { color: #d7ba7d; } /* Шар */
+
+        /* Салютын талбай */
         canvas {
-            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
         }
     </style>
 </head>
 <body>
 
-    <div id="instruction">Дэлгэц дээр дарж салют буудуулаарай</div>
-    <canvas id="fireworksCanvas"></canvas>
+    <div class="title">Firework Simulator CSS</div>
+
+    <div class="help-modal__body">
+        <div class="code-header">// python_expert.css</div>
+        <div class="code-content">
+            <span class="selector">.help-modal__body</span> {<br>
+            &nbsp;&nbsp;<span class="property">overflow-y</span>: <span class="value">auto</span>;<br>
+            &nbsp;&nbsp;<span class="property">-webkit-overflow-scrolling</span>: <span class="value">touch</span>;<br>
+            &nbsp;&nbsp;<span class="property">margin</span>: <span class="value">0</span>;<br>
+            &nbsp;&nbsp;<span class="property">padding</span>: <span class="value">0</span>;<br>
+            &nbsp;&nbsp;<span class="property">border-top</span>: <span class="value">1px solid rgba(255,255,255,0.25)</span>;<br>
+            }
+        </div>
+    </div>
+
+    <canvas id="fireworks"></canvas>
 
     <script>
-        const canvas = document.getElementById('fireworksCanvas');
+        const canvas = document.getElementById('fireworks');
         const ctx = canvas.getContext('2d');
 
-        // Дэлгэцийн хэмжээг тохируулах
-        function resizeCanvas() {
+        function resize() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
         }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
+        window.addEventListener('resize', resize);
+        resize();
 
-        // Салютын хэсгүүдийг (Particles) хадгалах массив
-        let particles = [];
-
-        class Particle {
-            constructor(x, y, color) {
-                this.x = x;
-                this.y = y;
-                this.color = color;
-                // Санамсаргүй чиглэлд шидэгдэх хурд
-                this.velocity = {
-                    x: (Math.random() - 0.5) * 8,
-                    y: (Math.random() - 0.5) * 8
-                };
-                this.alpha = 1; // Үзэгдэх байдал (аажмаар алга болно)
-                this.friction = 0.95; // Үрэлт (хурдыг сааруулна)
-                this.gravity = 0.2;   // Хүндийн хүч (доошоо унана)
-            }
-
-            draw() {
-                ctx.save();
-                ctx.globalAlpha = this.alpha;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
-                ctx.fillStyle = this.color;
-                ctx.fill();
-                ctx.restore();
+        class Firework {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = canvas.height;
+                this.targetY = Math.random() * (canvas.height * 0.5);
+                this.speed = 3 + Math.random() * 3;
+                this.particles = [];
+                this.exploded = false;
+                this.hue = Math.random() * 360;
             }
 
             update() {
-                this.velocity.x *= this.friction;
-                this.velocity.y *= this.friction;
-                this.velocity.y += this.gravity;
-                this.x += this.velocity.x;
-                this.y += this.velocity.y;
-                this.alpha -= 0.01; // Илүү удаан алга болгох
+                if (!this.exploded) {
+                    this.y -= this.speed;
+                    if (this.y <= this.targetY) {
+                        this.explode();
+                        this.exploded = true;
+                    }
+                }
+
+                this.particles.forEach((p, i) => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.05; // Хүндийн хүч
+                    p.alpha -= 0.015;
+                    if (p.alpha <= 0) this.particles.splice(i, 1);
+                });
+            }
+
+            explode() {
+                for (let i = 0; i < 80; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const force = Math.random() * 4 + 2;
+                    this.particles.push({
+                        x: this.x,
+                        y: this.y,
+                        vx: Math.cos(angle) * force,
+                        vy: Math.sin(angle) * force,
+                        alpha: 1
+                    });
+                }
+            }
+
+            draw() {
+                if (!this.exploded) {
+                    ctx.fillStyle = `hsl(${this.hue}, 100%, 50%)`;
+                    ctx.fillRect(this.x, this.y, 3, 3);
+                }
+
+                this.particles.forEach(p => {
+                    ctx.fillStyle = `hsla(${this.hue}, 100%, 50%, ${p.alpha})`;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, 1.5, 0, Math.PI * 2);
+                    ctx.fill();
+                });
             }
         }
 
-        // Салют үүсгэх функц
-        function createFirework(x, y) {
-            const particleCount = 100;
-            const color = `hsl(${Math.random() * 360}, 100%, 50%)`; // Санамсаргүй гоё өнгө
-            
-            for (let i = 0; i < particleCount; i++) {
-                particles.push(new Particle(x, y, color));
-            }
-        }
+        let fireworks = [];
 
-        // Хөдөлгөөнийг дүрслэх (Animation Loop)
         function animate() {
-            // Дэлгэцийг аажмаар харлуулж "сүүл" үүсгэх эффект
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillStyle = 'rgba(14, 2, 20, 0.2)'; // Сүүл үлдээх эффект
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            particles.forEach((particle, index) => {
-                if (particle.alpha > 0) {
-                    particle.update();
-                    particle.draw();
-                } else {
-                    particles.splice(index, 1); // Алга болсон бол устгах
-                }
+            if (Math.random() < 0.05) fireworks.push(new Firework());
+
+            fireworks.forEach((fw, i) => {
+                fw.update();
+                fw.draw();
+                if (fw.exploded && fw.particles.length === 0) fireworks.splice(i, 1);
             });
 
             requestAnimationFrame(animate);
         }
-
-        // Хэрэглэгч дарах үед
-        window.addEventListener('mousedown', (e) => {
-            createFirework(e.clientX, e.clientY);
-        });
-
-        // Автоматаар хааяа нэг буудуулах (Сонголтоор)
-        setInterval(() => {
-            if (Math.random() < 0.3) {
-                createFirework(Math.random() * canvas.width, Math.random() * canvas.height * 0.5);
-            }
-        }, 1000);
 
         animate();
     </script>
